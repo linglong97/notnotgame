@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Not Not Game</title>
-	<link rel="stylesheet" type="text/css" href="notnot.css">
-	<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
-	<script type="text/javascript" src = https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.11.5/paper-full.min.js></script>
-	<script type="text/paperscript" canvas = 'myCanvas'>//initialise text
+//initialise text
 
 var started = false;
 var finished = false;
@@ -66,32 +59,11 @@ triangle.opacity = 0;
 
 
 //keypresses
-var upPress = new Path.RegularPolygon(new Point(370, 530), 3, 50)
-upPress.strokeWidth = 5;
+var upPress
 
-upPress.opacity = 0;
-upPress.fillColor = 'red';
+var downPress
 
-var downPress = new Path.RegularPolygon(new Point(370, 830), 3, 50)
-downPress.strokeWidth = 5;
-
-downPress.opacity = 0;
-downPress.rotate(180);
-downPress.fillColor = 'blue';
-
-var leftPress= new Path.RegularPolygon(new Point(170, 680), 3, 50)
-leftPress.strokeWidth = 5;
-
-leftPress.opacity = 0; 
-leftPress.rotate(270);
-leftPress.fillColor = 'green'
-
-var rightPress= new Path.RegularPolygon(new Point(570, 680), 3, 50)
-rightPress.strokeWidth = 5;
-
-rightPress.opacity = 0;
-rightPress.rotate(90);
-rightPress.fillColor = 'yellow';
+var leftPRess
 
 //timer
 var timerT = new PointText({
@@ -112,8 +84,6 @@ begin.onHover = function(event){
 	}
 }
 
-
-//phrases
 var donut = new PointText({
 	fillColor: 'white',
 	point:[100, 200],
@@ -260,42 +230,6 @@ var right = new PointText({
 
 })
 
-//creates the statement we need for the game
-function generateNots(difficulty, Nots){
-	indicesToBlur = [0,1,2,3,4,5,6,7]
-	number = 0;
-	if (difficulty < 5){
-		number = 1;
-	}
-	else if (difficulty < 10){
-		number = 2;
-	}
-	else if (difficulty < 15){
-		number = 3;
-	}
-	else if (difficulty < 20){
-		number = 4;
-	}
-	else if (difficulty < 25){
-		number = 5;
-	}
-	else{
-		number = 6;
-	}
-	notBlurred = Math.floor((Math.random()*number));
-	
-	for (var i= 0; i < notBlurred; i++){
-		maxBlur = indicesToBlur.length;
-		index = Math.floor((Math.random()*(maxBlur-1)));
-		indicesToBlur.splice(index, 1);
-		
-	}
-	for(var i = 0; i < indicesToBlur.length; i++){
-		Nots[i].opacity = 0;
-
-	}
-	return indicesToBlur;
-}
 
 
 function onKeyDown(event){
@@ -303,25 +237,12 @@ function onKeyDown(event){
 	console.log(timer.opacity);
 	if (!started & begin.opacity == 1){
 		started = true;
-	}
-	if (event.key == 'up'){
-		upPress.strokeColor = 'white';
-	}
-	if (event.key == 'left'){
-		leftPress.strokeColor = 'white';
-	}
-	if (event.key == 'down'){
-		downPress.strokeColor = 'white';
-	}
-	if (event.key == 'right'){
-		rightPress.strokeColor = 'white';
-	}
 
+	}
 }	
 
 // main block for game
-var words = [upPress,leftPress,rightPress,downPress,left,right,rect,timerRect, up,down, donut, not1, not2,nothing,not4,not5, not6,not7,click, or, red, blue, green, yellow];
-var Nots = [donut, not1, click, not2, not6, not5,not4, not7]
+var words = [left,right,rect,timerRect, up,down, donut, not1, not2,nothing,not4,not5, not6,not7,click, or, red, blue, green, yellow];
 
 function onFrame(){
 	if (!game_over){
@@ -338,6 +259,8 @@ function onFrame(){
 					if (words[i].opacity >= 0.99){
 						finished = true;
 						started = false;
+						console.log('finished true and started false')
+						console.log(hitCorrect)
 						break;
 
 					}
@@ -349,8 +272,6 @@ function onFrame(){
 			if (finished & !hitCorrect){
 				timerT.content = timer.toString();
 				if (timer == 0){
-				generateNots(10, Nots)
-
 					game_over = true;
 				}
 				else{
@@ -358,10 +279,6 @@ function onFrame(){
 					timerRect.width= 400*(timer/300);
 					console.log(timerRect.width)
 				}
-
-			}
-			else if (finished & hitCorrect){
-
 
 			}
 			
@@ -374,9 +291,3 @@ function onFrame(){
 	}
 }
 
-</script>
-</head>
-<body>
-	<canvas id = 'myCanvas' resize> </canvas>
-</body>
-</html>
