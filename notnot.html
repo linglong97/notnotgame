@@ -8,16 +8,25 @@
 	<script type="text/javascript" src = 'https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.9/howler.core.min.js'></script>
 	<script type="text/paperscript" canvas = 'myCanvas'>//initialise text
 
+//initialise
 var started = false;
 var finished = false;
 var hitCorrect = true;
-var timer = 300;
+var timer = 200;
 var game_over = false;
 var score = -1;
 var correct = ['red','blue', 'yellow', 'green', 'up', 'down', 'left', 'right'];
+var restart = false;
 
+
+//music
 var correctMusic = new Howl({
 		src:['sounds/pinwheel.mp3'],
+		volume: 0.5,
+	});
+
+var endMusic = new Howl({
+		src:['sounds/gameover.mp3'],
 		volume: 0.5,
 	});
 
@@ -47,7 +56,7 @@ var begin = new PointText({
 //shapes
 var timerRect = new Path.Rectangle({
 	point:[1200,850],
-	size:[400,50],
+	size:[200,50],
 	fillColor:'white',
 	opacity:0
 })
@@ -181,8 +190,8 @@ var green = new PointText({
 
 var or = new PointText({
 	fillColor: 'white',
-	point: [480, 350],
-	content:'OR',
+	point: [300, 350],
+	content:'AND/OR',
 	fontSize: 75,
 	opacity:0
 })
@@ -266,6 +275,8 @@ var right = new PointText({
 
 })
 
+
+
 //max
 function makeRandom(min, max){
 	
@@ -325,6 +336,37 @@ function generateColors(difficulty, colors){
 	second = ['red', 'yellow', 'left', 'right'];
 	firstCorr = ['blue', 'red', 'down','left'];
 	secondCorr = ['up', 'right', 'green', 'yellow'];
+
+	number1 = makeRandom(0,2);
+
+	//nothing case
+	if (number1 == 0){
+		toNot = [0,1,2]
+		number = makeRandom(0,3);
+		for (var i = 0; i < number; i++){
+			toNot.splice(makeRandom(0,toNot.length));
+		}	
+
+		for(var i = 0; i < Nots.length; i++){
+			if (toNot.indexOf(i) >= 0){
+			Nots[i].opacity = 1;
+		}
+			else{
+			Nots[i].opacity = 0;
+		}
+		nothing.opacity = 1;	
+		if (number % 2 == 1){
+			return [];
+		}
+		else{
+			return correct;
+	}
+	}
+
+	}
+	else{
+
+	//earlier stages of game
 	if (difficulty <= 1){
 		number = Math.floor(Math.random()*4);
 		which = Math.floor(Math.random()*2)+1;
@@ -391,6 +433,8 @@ function generateColors(difficulty, colors){
 		}
 	}
 	}
+
+	//harder stages of game
 	else{
 		or.opacity = 1;
 		arr1 = [0,1,2,3];
@@ -471,7 +515,7 @@ function generateColors(difficulty, colors){
 	
 	return correct
 	}
-
+}
 }
 
 
@@ -479,7 +523,7 @@ function onKeyDown(event){
 //	 r 
 //g		y
 //	 b
-	console.log(correct)
+
 	if (!started & begin.opacity == 1){
 		started = true;
 	}
@@ -492,10 +536,12 @@ function onKeyDown(event){
 			}
 			else{
 				game_over = true;
+				endMusic.play();
 			}
 		}
 		else{
 			game_over = true;
+			endMusic.play();
 		}
 		
 		
@@ -508,10 +554,12 @@ function onKeyDown(event){
 			}
 			else{
 				game_over = true;
+				endMusic.play();
 			}
 		}
 		else{
 			game_over = true;
+			endMusic.play();
 		}
 	}
 	if (event.key == 'down'){
@@ -522,10 +570,12 @@ function onKeyDown(event){
 			}
 			else{
 				game_over = true;
+				endMusic.play();
 			}
 		}
 		else{
 			game_over = true;
+			endMusic.play();
 		}
 	}
 	if (event.key == 'right'){
@@ -536,23 +586,27 @@ function onKeyDown(event){
 			}
 			else{
 				game_over = true;
+				endMusic.play();
 			}
 		}
 		else{
 			game_over = true;
+			endMusic.play();
 		}
 	}
 
 }	
 
 // main block for game
-var words = [upPress,leftPress,rightPress,downPress,left,right,rect,timerRect, up,down, donut, not1, not2,nothing,not4,not5, not6,not7,click, or, red, blue, green, yellow];
+var words = [upPress,leftPress,rightPress,downPress,left,right,rect,timerT, up,down, donut, not1, not2,nothing,not4,not5, not6,not7,click, or, red, blue, green, yellow];
 var Nots = [donut, not1, click, not2, not6, not5,not4, not7]
 var colors = [down,up, blue, green,red, yellow, left, right, nothing]
 var words2 = [left,right,rect,up,down, donut, not1, not2,nothing,not4,not5, not6,not7,click, or, red, blue, green, yellow]
 
 function onFrame(){
+
 	if (!game_over){
+		
 		if (started){
 		// fade out beginning text
 
@@ -579,29 +633,35 @@ function onFrame(){
 			
 			if (finished & !hitCorrect){
 				timerT.content = timer.toString();
+				timer -= 1;
+				timerRect.size= [400*(timer/300), 50];
+				timerRect.opacity = 0;
+				
 				if (timer == 0){
-					if (correct.indexOf('nothing') >= 0){
+					if (nothing.opacity == 1){
 						hitCorrect = true;
 					}
 					if (!hitCorrect){
+						endMusic.play();
 						game_over = true;
+						
 					}
 				}
-				else if(timer == 290){
+				
+				else if(timer != 290){
+					console.log(timerRect.width);
+				}
+				else{
 					upPress.strokeColor = 'black';
 					leftPress.strokeColor = 'black';
 					rightPress.strokeColor = 'black';
 					downPress.strokeColor = 'black';	
 				}
-				else{
-					timer -= 1;
-					timerRect.width= 400*(timer/300);
-				}
-
 			}
 			else if (finished & hitCorrect){
 				correctMusic.play();
 				timer = 300;
+				timerRect.width = 400
 				score += 1;
 				for(var i = 4; i < words.length; i++){
 					if (i != 7){
@@ -618,9 +678,43 @@ function onFrame(){
 	
 	}
 	else{
-		
+		gameOver.content = 'GAME OVER, YOUR SCORE WAS: ' +score;
+		if (gameOver.opacity < 0.99){
+			gameOver.opacity += 0.01;
+			playAgain.opacity += 0.01;
+		}
+		else{
+		gameOver.opacity = 1;
+		playAgain.opacity = 1;
+	}
+		for (var i = 0; i < words.length; i++){
+			if (words[i].opacity > 0.01){
+				words[i].opacity -= 0.01;
+			}	
+			else{
+			words[i].opacity = 0;
+		}
+		}
 	}
 }
+
+//ending text
+var gameOver = new PointText({
+	fillColor:'white',
+	opacity:0,
+	content:'GAME OVER, YOUR SCORE WAS: '+ score,
+	fontSize: 75,
+	point:[200,300]
+})
+
+
+var playAgain = new PointText({
+	fillColor:'white',
+	opacity:0,
+	content:'PRESS ANYTHING TO PLAY AGAIN',
+	fontSize: 75,
+	point:[200,500]
+})
 
 </script>
 </head>
